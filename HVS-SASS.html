@@ -2,9 +2,9 @@
 
 <html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head>
 <meta charset="utf-8"/>
-<meta content="quarto-1.4.551" name="generator"/>
+<meta content="quarto-1.4.555" name="generator"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
-<meta content="2024-03-11" name="dcterms.date"/>
+<meta content="2024-06-11" name="dcterms.date"/>
 <title>Aerobiome Integration in Air Quality measurements - Integrating air microbiome for comprehensive air quality analysis</title>
 <style>
 code{white-space: pre-wrap;}
@@ -99,6 +99,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <style>html{ scroll-behavior: smooth; }</style>
 <script crossorigin="anonymous" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 <link href="custom.css" rel="stylesheet"/>
 </head>
 <body class="nav-fixed">
@@ -188,6 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a class="nav-link" data-scroll-target="#experiment-1-continuous-vs-discrete-sampling" href="#experiment-1-continuous-vs-discrete-sampling" id="toc-experiment-1-continuous-vs-discrete-sampling">Experiment 1: Continuous vs Discrete sampling</a></li>
 <li><a class="nav-link" data-scroll-target="#experiment-2-pm10-vs-pm2.5-heads" href="#experiment-2-pm10-vs-pm2.5-heads" id="toc-experiment-2-pm10-vs-pm2.5-heads">Experiment 2: PM10 vs PM2.5 heads</a></li>
 <li><a class="nav-link" data-scroll-target="#supp.-experiment-bags-vs-vial-blanks" href="#supp.-experiment-bags-vs-vial-blanks" id="toc-supp.-experiment-bags-vs-vial-blanks">Supp. Experiment: Bags vs Vial blanks</a></li>
+<li><a class="nav-link" data-scroll-target="#shannon-and-simpson-diversity-indexes" href="#shannon-and-simpson-diversity-indexes" id="toc-shannon-and-simpson-diversity-indexes">Shannon and Simpson diversity indexes</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -217,7 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div>
 <div class="quarto-title-meta-heading">Published</div>
 <div class="quarto-title-meta-contents">
-<p class="date">March 11, 2024</p>
+<p class="date">June 11, 2024</p>
 </div>
 </div>
 </div>
@@ -233,7 +262,7 @@ Show code imports and presets
 <p><br/> In this section we load the necessary libraries and set the global parameters for the notebook. It’s irrelevant for the narrative of the analysis but essential for the reproducibility of the results.</p>
 <section class="level5 unnumbered" id="imports">
 <h5 class="unnumbered anchored" data-anchor-id="imports">Imports</h5>
-<div class="cell" data-execution_count="70" id="cell-6">
+<div class="cell" data-execution_count="1" id="cell-6">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a aria-hidden="true" href="#cb1-1" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a aria-hidden="true" href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a aria-hidden="true" href="#cb1-3" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -291,8 +320,7 @@ Show code imports and presets
 <span id="cb3-2"><a aria-hidden="true" href="#cb3-2" tabindex="-1"></a>metadata_df.head()</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div>
-<div>
-<table class="dataframe table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -446,8 +474,7 @@ Show code imports and presets
 </div>
 </div>
 </div>
-</div>
-<div class="cell" id="cell-12">
+<div class="cell" data-execution_count="4" id="cell-12">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a>metadata_df <span class="op">=</span> (metadata_df</span>
 <span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a> .drop(columns<span class="op">=</span>metadata_df.nunique().loc[<span class="kw">lambda</span> x: x<span class="op">==</span><span class="dv">1</span>].index)</span>
 <span id="cb4-3"><a aria-hidden="true" href="#cb4-3" tabindex="-1"></a> .rename(columns<span class="op">=</span>{<span class="st">'Seq ID'</span>: <span class="st">'sample_id'</span>})</span>
@@ -455,11 +482,11 @@ Show code imports and presets
 <span id="cb4-5"><a aria-hidden="true" href="#cb4-5" tabindex="-1"></a>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </div>
 <p>We also have the total number of reads for each assigned Species for all samples, which we will load from <code>/data/REL_hvsp_sp.txt</code></p>
-<div class="cell" data-execution_count="4" id="cell-14">
+<div class="cell" data-execution_count="5" id="cell-14">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a>species_df <span class="op">=</span> pd.read_table(<span class="st">'../data/REL_hvsp_sp.txt'</span>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </div>
 <p>We have been given a list of species that are considered to be contaminants, which we will remove from the analysis:</p>
-<div class="cell" id="cell-16">
+<div class="cell" data-execution_count="6" id="cell-16">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a aria-hidden="true" href="#cb6-1" tabindex="-1"></a>contamination_list <span class="op">=</span> [</span>
 <span id="cb6-2"><a aria-hidden="true" href="#cb6-2" tabindex="-1"></a>    <span class="st">"Galendromus occidentalis"</span>, </span>
 <span id="cb6-3"><a aria-hidden="true" href="#cb6-3" tabindex="-1"></a>    <span class="st">"Bemisia tabaci"</span>, </span>
@@ -469,7 +496,7 @@ Show code imports and presets
 <span id="cb6-7"><a aria-hidden="true" href="#cb6-7" tabindex="-1"></a>]</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </div>
 <p>Information on the total DNA yield of each sample is stored in the <code>/data/DNA.xlsx</code> file:</p>
-<div class="cell" id="cell-18">
+<div class="cell" data-execution_count="7" id="cell-18">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a>dna_yields <span class="op">=</span> (pd.read_excel(<span class="st">'../data/DNA.xlsx'</span>)</span>
 <span id="cb7-2"><a aria-hidden="true" href="#cb7-2" tabindex="-1"></a> .rename(columns<span class="op">=</span>{</span>
 <span id="cb7-3"><a aria-hidden="true" href="#cb7-3" tabindex="-1"></a>    <span class="st">'DNA Concentration (ng/uL)'</span>: <span class="st">'dna_conc'</span>,</span>
@@ -481,7 +508,7 @@ Show code imports and presets
 <span id="cb7-9"><a aria-hidden="true" href="#cb7-9" tabindex="-1"></a>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </div>
 <p>We will generate a long-form dataframe with the species counts for each sample:</p>
-<div class="cell" data-execution_count="84" id="cell-20">
+<div class="cell" data-execution_count="8" id="cell-20">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a>species_long <span class="op">=</span> (species_df</span>
 <span id="cb8-2"><a aria-hidden="true" href="#cb8-2" tabindex="-1"></a> .rename(columns<span class="op">=</span>{<span class="st">'#Datasets'</span>: <span class="st">'name'</span>})</span>
 <span id="cb8-3"><a aria-hidden="true" href="#cb8-3" tabindex="-1"></a> .melt(<span class="st">'name'</span>, var_name<span class="op">=</span><span class="st">'sample_id'</span>, value_name<span class="op">=</span><span class="st">'reads'</span>)</span>
@@ -490,10 +517,9 @@ Show code imports and presets
 <span id="cb8-6"><a aria-hidden="true" href="#cb8-6" tabindex="-1"></a> .query(<span class="st">'reads &gt; 0'</span>)</span>
 <span id="cb8-7"><a aria-hidden="true" href="#cb8-7" tabindex="-1"></a>)</span>
 <span id="cb8-8"><a aria-hidden="true" href="#cb8-8" tabindex="-1"></a>species_long.sample(<span class="dv">10</span>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="84">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
-<div>
-<table class="dataframe table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -504,75 +530,74 @@ Show code imports and presets
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">525047</td>
-<td>Frankia sp. Iso899</td>
-<td>HVSP66</td>
-<td>30.0</td>
+<td data-quarto-table-cell-role="th">128710</td>
+<td>Krasilnikoviella flava</td>
+<td>HVSP15</td>
+<td>25.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">195900</td>
-<td>Conexibacter sp. SYSU D00693</td>
-<td>HVSP25</td>
-<td>183.0</td>
+<td data-quarto-table-cell-role="th">337027</td>
+<td>Marmoricola sp. Leaf446</td>
+<td>HVSP45</td>
+<td>599.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">24949</td>
-<td>Nocardioides salarius</td>
+<td data-quarto-table-cell-role="th">49047</td>
+<td>Limibaculum sp. M0105</td>
+<td>HVSP6</td>
+<td>33.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">157388</td>
+<td>Nocardioides ungokensis</td>
+<td>HVSP19</td>
+<td>148.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">269015</td>
+<td>Rubripirellula reticaptiva</td>
+<td>HVSP35</td>
+<td>28.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">167215</td>
+<td>Streptomyces hoynatensis</td>
+<td>HVSP20</td>
+<td>40.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">23868</td>
+<td>Georgenia subflava</td>
 <td>HVSP3</td>
-<td>645.0</td>
+<td>115.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">183468</td>
-<td>Pseudomonas entomophila</td>
-<td>HVSP23</td>
-<td>67.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">461303</td>
-<td>Jeotgalicoccus aerolatus</td>
+<td data-quarto-table-cell-role="th">461309</td>
+<td>Jeotgalicoccus psychrophilus</td>
 <td>HVSP59</td>
-<td>63.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">492575</td>
-<td>Salinimicrobium sp. CDJ15-91</td>
-<td>HVSP63</td>
-<td>65.0</td>
+<td>133.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">425232</td>
-<td>Megalopta genalis</td>
-<td>HVSP55</td>
-<td>29.0</td>
+<td data-quarto-table-cell-role="th">403987</td>
+<td>Rubrobacter aplysinae</td>
+<td>HVSP53</td>
+<td>81.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">474777</td>
-<td>Paracoccus marcusii</td>
-<td>HVSP61</td>
-<td>27.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">383296</td>
-<td>Quadrisphaera sp. DSM 44207</td>
-<td>HVSP51</td>
-<td>264.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">593289</td>
-<td>Chloroflexi bacterium RBG_16_70_13</td>
-<td>HVSP73</td>
-<td>26.0</td>
+<td data-quarto-table-cell-role="th">208014</td>
+<td>Phyllostachys edulis</td>
+<td>HVSP26</td>
+<td>28.0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-</div>
 <section class="level3" id="experiment-1-continuous-vs-discrete-sampling">
 <h3 class="anchored" data-anchor-id="experiment-1-continuous-vs-discrete-sampling">Experiment 1: Continuous vs Discrete sampling</h3>
 <p>Let’s start by taking a look at how the DNA yield of the samples and the diversity (measured as the richness of species) compares:</p>
-<div class="cell" data-execution_count="81" id="cell-23">
+<div class="cell" data-execution_count="9" id="cell-23">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a aria-hidden="true" href="#cb9-1" tabindex="-1"></a>exp_1_samples <span class="op">=</span> [<span class="st">'C3-B'</span>, <span class="st">'D3.1-B'</span>, <span class="st">'D3.2-B'</span>, <span class="st">'D3.3-B'</span>, <span class="st">'C6-B'</span>, <span class="st">'D6.1-B'</span>, <span class="st">'D6.2-B'</span>,</span>
@@ -623,7 +648,7 @@ Show code imports and presets
 </div>
 <p>At a simple glance, it seems that the continuous sampling method yields more DNA (which makes sense since they are sampling for longer periods of time) but this does not seem to translate into a higher species richness.</p>
 <p>If we now check not only the richness but the actual species belonging to each of the sample types and see whether some species are more common in one type of sample than the other:</p>
-<div class="cell" data-execution_count="17" id="cell-26">
+<div class="cell" data-execution_count="10" id="cell-26">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a aria-hidden="true" href="#cb10-1" tabindex="-1"></a>table_3 <span class="op">=</span> (species_long</span>
@@ -705,12 +730,12 @@ Show code imports and presets
 </div>
 </div>
 <p>If we represent the same information in a Sankey diagram:</p>
-<div class="cell" data-execution_count="79" id="cell-28">
+<div class="cell" data-execution_count="11" id="cell-28">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a aria-hidden="true" href="#cb11-1" tabindex="-1"></a>Image(<span class="st">'../output/sankey_3d_vs_6d.png'</span>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="79">
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 <figure class="figure">
 <p><img class="img-fluid figure-img" src="HVS-SASS_files/figure-html/cell-12-output-1.png"/></p>
@@ -722,7 +747,7 @@ Show code imports and presets
 <section class="level3" id="experiment-2-pm10-vs-pm2.5-heads">
 <h3 class="anchored" data-anchor-id="experiment-2-pm10-vs-pm2.5-heads">Experiment 2: PM10 vs PM2.5 heads</h3>
 <p>If we take a look now at the 3 daily samples taken with a PM10 head and the 3 daily samples taken with a PM2.5 head, and where the species identified appear:</p>
-<div class="cell" data-execution_count="19" id="cell-31">
+<div class="cell" data-execution_count="12" id="cell-31">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a aria-hidden="true" href="#cb12-1" tabindex="-1"></a>(species_long</span>
@@ -741,7 +766,7 @@ Show code imports and presets
 <span id="cb12-14"><a aria-hidden="true" href="#cb12-14" tabindex="-1"></a>.presence.value_counts()</span>
 <span id="cb12-15"><a aria-hidden="true" href="#cb12-15" tabindex="-1"></a>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <pre><code>presence
 Both     3634
 PM10      841
@@ -751,7 +776,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 <p>We see that in this case, from a total of 5215 species, 3634 appear in both types of samples, 841 are unique to PM10 samples and 740 are unique to PM2.5 samples.</p>
 <p>I am going to now generate a table listing the species unique to each sample type and the count of unique samples where they appear. The formatted tables can be accessed <a href="https://docs.google.com/spreadsheets/d/1Z2mpG_UcF1rGa4fqV-FreewOr0SFzgNETQ_teDca9Qc/edit?usp=sharing">here</a>.</p>
-<div class="cell" data-execution_count="87" id="cell-34">
+<div class="cell" data-execution_count="13" id="cell-34">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a aria-hidden="true" href="#cb14-1" tabindex="-1"></a>uniquely_unique <span class="op">=</span> (species_long</span>
@@ -803,7 +828,7 @@ Name: count, dtype: int64</code></pre>
 </details>
 </div>
 <p>If we check the total reads assigned per sample day and head type, we observe that while for days 1 and 2 the total reads where rather high and similar for both head types, but the 3rd day had a strong reduction, with the PM2.5 head having a much lower number of reads than the PM10 head (which still had a low number of reads compared to the previous two days).</p>
-<div class="cell" data-execution_count="22" id="cell-36">
+<div class="cell" data-execution_count="14" id="cell-36">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a aria-hidden="true" href="#cb15-1" tabindex="-1"></a>(species_long</span>
@@ -846,10 +871,10 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>If we focus on the species which are not only unique to each head type but that are present with higher relative weight in one of the head types, we can see the top 50 most differentiallly abundant species here (based on the diffs between the relative abundance of the species in the two head types):</p>
-<div class="cell" data-execution_count="24" id="cell-38">
+<div class="cell" data-execution_count="17" id="cell-38">
 <details class="code-fold">
 <summary>Show Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a aria-hidden="true" href="#cb16-1" tabindex="-1"></a>pm10_25_comp <span class="op">=</span> (species_long</span>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a aria-hidden="true" href="#cb16-1" tabindex="-1"></a>species_by_header <span class="op">=</span> (species_long</span>
 <span id="cb16-2"><a aria-hidden="true" href="#cb16-2" tabindex="-1"></a>.merge(metadata_df[[<span class="st">'Sampling'</span>, <span class="st">'Sample ID'</span>, <span class="st">'sample_id'</span>]])</span>
 <span id="cb16-3"><a aria-hidden="true" href="#cb16-3" tabindex="-1"></a>.rename(columns<span class="op">=</span>{<span class="st">'Sample ID'</span>: <span class="st">'sample_code'</span>})</span>
 <span id="cb16-4"><a aria-hidden="true" href="#cb16-4" tabindex="-1"></a>.query(<span class="st">'name not in @contamination_list'</span>)</span>
@@ -863,7 +888,7 @@ Name: count, dtype: int64</code></pre>
 <span id="cb16-12"><a aria-hidden="true" href="#cb16-12" tabindex="-1"></a>.<span class="bu">apply</span>(<span class="kw">lambda</span> dd: dd.assign(rel_abundance<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">'reads'</span>] <span class="op">/</span> x[<span class="st">'reads'</span>].<span class="bu">sum</span>()))</span>
 <span id="cb16-13"><a aria-hidden="true" href="#cb16-13" tabindex="-1"></a>.reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb16-14"><a aria-hidden="true" href="#cb16-14" tabindex="-1"></a>.groupby([<span class="st">'name'</span>, <span class="st">'header'</span>])</span>
-<span id="cb16-15"><a aria-hidden="true" href="#cb16-15" tabindex="-1"></a>.agg({<span class="st">'rel_abundance'</span>: <span class="st">'mean'</span>, <span class="st">'reads'</span>: <span class="st">'sum'</span>})</span>
+<span id="cb16-15"><a aria-hidden="true" href="#cb16-15" tabindex="-1"></a>.agg({<span class="st">'rel_abundance'</span>: <span class="kw">lambda</span> x: x.<span class="bu">sum</span>() <span class="op">/</span> <span class="dv">3</span>, <span class="st">'reads'</span>: <span class="st">'sum'</span>})</span>
 <span id="cb16-16"><a aria-hidden="true" href="#cb16-16" tabindex="-1"></a>.loc[<span class="kw">lambda</span> x: x.reads <span class="op">&gt;</span> <span class="dv">0</span>]</span>
 <span id="cb16-17"><a aria-hidden="true" href="#cb16-17" tabindex="-1"></a>.reset_index()</span>
 <span id="cb16-18"><a aria-hidden="true" href="#cb16-18" tabindex="-1"></a>.pivot(index<span class="op">=</span><span class="st">'name'</span>, columns<span class="op">=</span><span class="st">'header'</span>, values<span class="op">=</span>[<span class="st">'rel_abundance'</span>, <span class="st">'reads'</span>])</span>
@@ -871,7 +896,7 @@ Name: count, dtype: int64</code></pre>
 <span id="cb16-20"><a aria-hidden="true" href="#cb16-20" tabindex="-1"></a>.assign(diff<span class="op">=</span><span class="kw">lambda</span> dd: (dd[(<span class="st">'rel_abundance'</span>,  <span class="st">'PM2.5'</span>)] <span class="op">-</span> dd[(<span class="st">'rel_abundance'</span>,  <span class="st">'PM10'</span>)]))</span>
 <span id="cb16-21"><a aria-hidden="true" href="#cb16-21" tabindex="-1"></a>.assign(direction<span class="op">=</span><span class="kw">lambda</span> dd: np.where(dd[<span class="st">'diff'</span>] <span class="op">&gt;</span> <span class="dv">0</span>, <span class="st">'PM2.5 &gt; PM10'</span>, <span class="st">'PM2.5 &lt; PM10'</span>))</span>
 <span id="cb16-22"><a aria-hidden="true" href="#cb16-22" tabindex="-1"></a>.assign(abs_diff<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'diff'</span>].<span class="bu">abs</span>())</span>
-<span id="cb16-23"><a aria-hidden="true" href="#cb16-23" tabindex="-1"></a>.sort_values(<span class="st">'abs_diff'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb16-23"><a aria-hidden="true" href="#cb16-23" tabindex="-1"></a>.sort_values(<span class="st">'diff'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb16-24"><a aria-hidden="true" href="#cb16-24" tabindex="-1"></a>.head(<span class="dv">50</span>)</span>
 <span id="cb16-25"><a aria-hidden="true" href="#cb16-25" tabindex="-1"></a>.assign(reads_label<span class="op">=</span><span class="kw">lambda</span> dd: </span>
 <span id="cb16-26"><a aria-hidden="true" href="#cb16-26" tabindex="-1"></a>        dd[<span class="st">'reads'</span>, <span class="st">'PM10'</span>].astype(<span class="bu">int</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">':'</span> <span class="op">+</span> </span>
@@ -881,37 +906,42 @@ Name: count, dtype: int64</code></pre>
 <span id="cb16-30"><a aria-hidden="true" href="#cb16-30" tabindex="-1"></a>        pd.Categorical(dd.direction, categories<span class="op">=</span>[<span class="st">'PM2.5 &gt; PM10'</span>, <span class="st">'PM2.5 &lt; PM10'</span>],</span>
 <span id="cb16-31"><a aria-hidden="true" href="#cb16-31" tabindex="-1"></a>                       ordered<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb16-32"><a aria-hidden="true" href="#cb16-32" tabindex="-1"></a>)</span>
-<span id="cb16-33"><a aria-hidden="true" href="#cb16-33" tabindex="-1"></a>)</span>
-<span id="cb16-34"><a aria-hidden="true" href="#cb16-34" tabindex="-1"></a>pm10_25_comp.columns <span class="op">=</span> [<span class="st">'_'</span>.join(col).strip() <span class="cf">for</span> col <span class="kw">in</span> pm10_25_comp.columns.values]</span>
-<span id="cb16-35"><a aria-hidden="true" href="#cb16-35" tabindex="-1"></a>(pm10_25_comp</span>
-<span id="cb16-36"><a aria-hidden="true" href="#cb16-36" tabindex="-1"></a> .replace({<span class="st">"Candidatus Symbiopectobacterium sp. 'North America'"</span>:</span>
-<span id="cb16-37"><a aria-hidden="true" href="#cb16-37" tabindex="-1"></a>           <span class="st">"Candidatus Symbiopectobacterium sp."</span>})</span>
-<span id="cb16-38"><a aria-hidden="true" href="#cb16-38" tabindex="-1"></a> .assign(rel_abundance_PM10<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'rel_abundance_PM10'</span>] <span class="op">*</span> <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb16-39"><a aria-hidden="true" href="#cb16-39" tabindex="-1"></a> .assign(label_pm25<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'reads_PM2.5'</span>].astype(<span class="bu">int</span>).astype(<span class="bu">str</span>) <span class="op">+</span>  <span class="st">' ('</span></span>
-<span id="cb16-40"><a aria-hidden="true" href="#cb16-40" tabindex="-1"></a>         <span class="op">+</span> (dd[<span class="st">'rel_abundance_PM2.5'</span>] <span class="op">*</span> <span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">2</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">'%)'</span>)</span>
-<span id="cb16-41"><a aria-hidden="true" href="#cb16-41" tabindex="-1"></a> .assign(label_pm10<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'reads_PM10'</span>].astype(<span class="bu">int</span>).astype(<span class="bu">str</span>) <span class="op">+</span>  <span class="st">' ('</span></span>
-<span id="cb16-42"><a aria-hidden="true" href="#cb16-42" tabindex="-1"></a>         <span class="op">+</span> (dd[<span class="st">'rel_abundance_PM10'</span>].<span class="bu">abs</span>() <span class="op">*</span> <span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">2</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">'%)'</span>)</span>
-<span id="cb16-43"><a aria-hidden="true" href="#cb16-43" tabindex="-1"></a>.pipe(<span class="kw">lambda</span> dd: p9.ggplot(dd) </span>
-<span id="cb16-44"><a aria-hidden="true" href="#cb16-44" tabindex="-1"></a>      <span class="op">+</span> p9.aes(<span class="st">'reorder(name_, abs_diff_)'</span>)</span>
-<span id="cb16-45"><a aria-hidden="true" href="#cb16-45" tabindex="-1"></a>      <span class="op">+</span> p9.coord_flip() </span>
-<span id="cb16-46"><a aria-hidden="true" href="#cb16-46" tabindex="-1"></a>      <span class="op">+</span> p9.geom_col(p9.aes(y<span class="op">=</span><span class="st">'rel_abundance_PM2.5'</span>), fill<span class="op">=</span><span class="st">'#7B76B5'</span>, width<span class="op">=</span><span class="fl">.6</span>)</span>
-<span id="cb16-47"><a aria-hidden="true" href="#cb16-47" tabindex="-1"></a>      <span class="op">+</span> p9.geom_col(p9.aes(y<span class="op">=</span><span class="st">'rel_abundance_PM10'</span>), fill<span class="op">=</span><span class="st">'#D85E01'</span>, width<span class="op">=</span><span class="fl">.6</span>)</span>
-<span id="cb16-48"><a aria-hidden="true" href="#cb16-48" tabindex="-1"></a>      <span class="op">+</span> p9.geom_text(p9.aes(label<span class="op">=</span><span class="st">'label_pm10'</span>, y<span class="op">=</span><span class="st">'rel_abundance_PM10'</span>),</span>
-<span id="cb16-49"><a aria-hidden="true" href="#cb16-49" tabindex="-1"></a>                      size<span class="op">=</span><span class="dv">5</span>, ha<span class="op">=</span><span class="st">'right'</span>, nudge_y<span class="op">=-</span><span class="fl">.0005</span>)</span>
-<span id="cb16-50"><a aria-hidden="true" href="#cb16-50" tabindex="-1"></a>      <span class="op">+</span> p9.geom_text(p9.aes(label<span class="op">=</span><span class="st">'label_pm25'</span>, y<span class="op">=</span><span class="st">'rel_abundance_PM2.5'</span>),</span>
-<span id="cb16-51"><a aria-hidden="true" href="#cb16-51" tabindex="-1"></a>                      size<span class="op">=</span><span class="dv">5</span>, ha<span class="op">=</span><span class="st">'left'</span>, nudge_y<span class="op">=</span><span class="fl">.0005</span>)</span>
-<span id="cb16-52"><a aria-hidden="true" href="#cb16-52" tabindex="-1"></a>      <span class="op">+</span> p9.scale_y_continuous(</span>
-<span id="cb16-53"><a aria-hidden="true" href="#cb16-53" tabindex="-1"></a>          labels<span class="op">=</span>[<span class="st">"2%"</span>, <span class="st">"0%"</span>, <span class="st">"2%"</span>],</span>
-<span id="cb16-54"><a aria-hidden="true" href="#cb16-54" tabindex="-1"></a>          limits<span class="op">=</span>[<span class="op">-</span><span class="fl">.034</span>, <span class="fl">.034</span>])</span>
-<span id="cb16-55"><a aria-hidden="true" href="#cb16-55" tabindex="-1"></a>      <span class="op">+</span> p9.annotate(<span class="st">'hline'</span>, yintercept<span class="op">=</span><span class="dv">0</span>, linetype<span class="op">=</span><span class="st">'solid'</span>, size<span class="op">=</span><span class="fl">.2</span>)</span>
-<span id="cb16-56"><a aria-hidden="true" href="#cb16-56" tabindex="-1"></a>      <span class="op">+</span> p9.labs(x<span class="op">=</span><span class="st">''</span>, y<span class="op">=</span><span class="st">'Mean Relative Abundance'</span>, title<span class="op">=</span><span class="ss">f'PM10              PM2.5'</span>)</span>
-<span id="cb16-57"><a aria-hidden="true" href="#cb16-57" tabindex="-1"></a>      <span class="op">+</span> p9.theme(figure_size<span class="op">=</span>(<span class="fl">4.5</span>, <span class="dv">5</span>),</span>
-<span id="cb16-58"><a aria-hidden="true" href="#cb16-58" tabindex="-1"></a>                 axis_text_y<span class="op">=</span>p9.element_text(size<span class="op">=</span><span class="fl">6.5</span>),</span>
-<span id="cb16-59"><a aria-hidden="true" href="#cb16-59" tabindex="-1"></a>                 axis_title_x<span class="op">=</span>p9.element_text(size<span class="op">=</span><span class="dv">9</span>),</span>
-<span id="cb16-60"><a aria-hidden="true" href="#cb16-60" tabindex="-1"></a>                 plot_title<span class="op">=</span>p9.element_text(size<span class="op">=</span><span class="dv">10</span>, ha<span class="op">=</span><span class="st">'center'</span>),</span>
-<span id="cb16-61"><a aria-hidden="true" href="#cb16-61" tabindex="-1"></a>                 )</span>
-<span id="cb16-62"><a aria-hidden="true" href="#cb16-62" tabindex="-1"></a>      )</span>
-<span id="cb16-63"><a aria-hidden="true" href="#cb16-63" tabindex="-1"></a>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
+<span id="cb16-33"><a aria-hidden="true" href="#cb16-33" tabindex="-1"></a> .replace({<span class="st">"Candidatus Symbiopectobacterium sp. 'North America'"</span>:</span>
+<span id="cb16-34"><a aria-hidden="true" href="#cb16-34" tabindex="-1"></a>           <span class="st">"Candidatus Symbiopectobacterium sp."</span>})</span>
+<span id="cb16-35"><a aria-hidden="true" href="#cb16-35" tabindex="-1"></a>)</span>
+<span id="cb16-36"><a aria-hidden="true" href="#cb16-36" tabindex="-1"></a></span>
+<span id="cb16-37"><a aria-hidden="true" href="#cb16-37" tabindex="-1"></a>sorted_species_rel <span class="op">=</span> species_by_header.sort_values((<span class="st">'rel_abundance'</span>, <span class="st">'PM2.5'</span>))[<span class="st">'name'</span>]</span>
+<span id="cb16-38"><a aria-hidden="true" href="#cb16-38" tabindex="-1"></a>sorted_species_reads <span class="op">=</span> species_by_header.sort_values((<span class="st">'reads'</span>, <span class="st">'PM10'</span>))[<span class="st">'name'</span>]</span>
+<span id="cb16-39"><a aria-hidden="true" href="#cb16-39" tabindex="-1"></a></span>
+<span id="cb16-40"><a aria-hidden="true" href="#cb16-40" tabindex="-1"></a>species_by_header.columns <span class="op">=</span> [<span class="st">'_'</span>.join(col).strip() <span class="cf">for</span> col <span class="kw">in</span> species_by_header.columns.values]</span>
+<span id="cb16-41"><a aria-hidden="true" href="#cb16-41" tabindex="-1"></a>(species_by_header</span>
+<span id="cb16-42"><a aria-hidden="true" href="#cb16-42" tabindex="-1"></a> .assign(rel_abundance_PM10<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'rel_abundance_PM10'</span>] <span class="op">*</span> <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb16-43"><a aria-hidden="true" href="#cb16-43" tabindex="-1"></a> .assign(label_pm25<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'reads_PM2.5'</span>].astype(<span class="bu">int</span>).astype(<span class="bu">str</span>) <span class="op">+</span>  <span class="st">' ('</span></span>
+<span id="cb16-44"><a aria-hidden="true" href="#cb16-44" tabindex="-1"></a>         <span class="op">+</span> (dd[<span class="st">'rel_abundance_PM2.5'</span>] <span class="op">*</span> <span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">2</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">'%)'</span>)</span>
+<span id="cb16-45"><a aria-hidden="true" href="#cb16-45" tabindex="-1"></a> .assign(label_pm10<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'reads_PM10'</span>].astype(<span class="bu">int</span>).astype(<span class="bu">str</span>) <span class="op">+</span>  <span class="st">' ('</span></span>
+<span id="cb16-46"><a aria-hidden="true" href="#cb16-46" tabindex="-1"></a>         <span class="op">+</span> (dd[<span class="st">'rel_abundance_PM10'</span>].<span class="bu">abs</span>() <span class="op">*</span> <span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">2</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">'%)'</span>)</span>
+<span id="cb16-47"><a aria-hidden="true" href="#cb16-47" tabindex="-1"></a>.assign(name<span class="op">=</span><span class="kw">lambda</span> dd: pd.Categorical(dd.name_, categories<span class="op">=</span>sorted_species_rel, ordered<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb16-48"><a aria-hidden="true" href="#cb16-48" tabindex="-1"></a>.pipe(<span class="kw">lambda</span> dd: p9.ggplot(dd) </span>
+<span id="cb16-49"><a aria-hidden="true" href="#cb16-49" tabindex="-1"></a>      <span class="op">+</span> p9.aes(<span class="st">'name'</span>)</span>
+<span id="cb16-50"><a aria-hidden="true" href="#cb16-50" tabindex="-1"></a>      <span class="op">+</span> p9.coord_flip() </span>
+<span id="cb16-51"><a aria-hidden="true" href="#cb16-51" tabindex="-1"></a>      <span class="op">+</span> p9.geom_col(p9.aes(y<span class="op">=</span><span class="st">'rel_abundance_PM2.5'</span>), fill<span class="op">=</span><span class="st">'#7B76B5'</span>, width<span class="op">=</span><span class="fl">.6</span>)</span>
+<span id="cb16-52"><a aria-hidden="true" href="#cb16-52" tabindex="-1"></a>      <span class="op">+</span> p9.geom_col(p9.aes(y<span class="op">=</span><span class="st">'rel_abundance_PM10'</span>), fill<span class="op">=</span><span class="st">'#D85E01'</span>, width<span class="op">=</span><span class="fl">.6</span>)</span>
+<span id="cb16-53"><a aria-hidden="true" href="#cb16-53" tabindex="-1"></a>      <span class="op">+</span> p9.geom_text(p9.aes(label<span class="op">=</span><span class="st">'label_pm10'</span>, y<span class="op">=</span><span class="st">'rel_abundance_PM10'</span>),</span>
+<span id="cb16-54"><a aria-hidden="true" href="#cb16-54" tabindex="-1"></a>                      size<span class="op">=</span><span class="dv">5</span>, ha<span class="op">=</span><span class="st">'right'</span>, nudge_y<span class="op">=-</span><span class="fl">.0005</span>)</span>
+<span id="cb16-55"><a aria-hidden="true" href="#cb16-55" tabindex="-1"></a>      <span class="op">+</span> p9.geom_text(p9.aes(label<span class="op">=</span><span class="st">'label_pm25'</span>, y<span class="op">=</span><span class="st">'rel_abundance_PM2.5'</span>),</span>
+<span id="cb16-56"><a aria-hidden="true" href="#cb16-56" tabindex="-1"></a>                      size<span class="op">=</span><span class="dv">5</span>, ha<span class="op">=</span><span class="st">'left'</span>, nudge_y<span class="op">=</span><span class="fl">.0005</span>)</span>
+<span id="cb16-57"><a aria-hidden="true" href="#cb16-57" tabindex="-1"></a>      <span class="op">+</span> p9.scale_y_continuous(</span>
+<span id="cb16-58"><a aria-hidden="true" href="#cb16-58" tabindex="-1"></a>          labels<span class="op">=</span>[<span class="st">"2%"</span>, <span class="st">"0%"</span>, <span class="st">"2%"</span>],</span>
+<span id="cb16-59"><a aria-hidden="true" href="#cb16-59" tabindex="-1"></a>          limits<span class="op">=</span>[<span class="op">-</span><span class="fl">.034</span>, <span class="fl">.034</span>])</span>
+<span id="cb16-60"><a aria-hidden="true" href="#cb16-60" tabindex="-1"></a>      <span class="op">+</span> p9.annotate(<span class="st">'hline'</span>, yintercept<span class="op">=</span><span class="dv">0</span>, linetype<span class="op">=</span><span class="st">'solid'</span>, size<span class="op">=</span><span class="fl">.2</span>)</span>
+<span id="cb16-61"><a aria-hidden="true" href="#cb16-61" tabindex="-1"></a>      <span class="op">+</span> p9.labs(x<span class="op">=</span><span class="st">''</span>, y<span class="op">=</span><span class="st">'Mean Relative Abundance'</span>, title<span class="op">=</span><span class="ss">f'PM10              PM2.5'</span>)</span>
+<span id="cb16-62"><a aria-hidden="true" href="#cb16-62" tabindex="-1"></a>      <span class="op">+</span> p9.theme(figure_size<span class="op">=</span>(<span class="fl">4.5</span>, <span class="dv">5</span>),</span>
+<span id="cb16-63"><a aria-hidden="true" href="#cb16-63" tabindex="-1"></a>                 axis_text_y<span class="op">=</span>p9.element_text(size<span class="op">=</span><span class="fl">6.5</span>),</span>
+<span id="cb16-64"><a aria-hidden="true" href="#cb16-64" tabindex="-1"></a>                 axis_title_x<span class="op">=</span>p9.element_text(size<span class="op">=</span><span class="dv">9</span>),</span>
+<span id="cb16-65"><a aria-hidden="true" href="#cb16-65" tabindex="-1"></a>                 plot_title<span class="op">=</span>p9.element_text(size<span class="op">=</span><span class="dv">10</span>, ha<span class="op">=</span><span class="st">'center'</span>),</span>
+<span id="cb16-66"><a aria-hidden="true" href="#cb16-66" tabindex="-1"></a>                 )</span>
+<span id="cb16-67"><a aria-hidden="true" href="#cb16-67" tabindex="-1"></a>      )</span>
+<span id="cb16-68"><a aria-hidden="true" href="#cb16-68" tabindex="-1"></a>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -922,7 +952,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>If we instead focus on the species that appear in at least 2 samples of one head type and none of the other, the top 30 for each head type are:</p>
-<div class="cell" data-execution_count="27" id="cell-40">
+<div class="cell" data-execution_count="19" id="cell-40">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a aria-hidden="true" href="#cb17-1" tabindex="-1"></a>f <span class="op">=</span> (unique_pm_reads</span>
@@ -952,7 +982,7 @@ Name: count, dtype: int64</code></pre>
 <span id="cb17-25"><a aria-hidden="true" href="#cb17-25" tabindex="-1"></a>f.save(<span class="st">'../output/unique_pm_species.svg'</span>, dpi<span class="op">=</span><span class="dv">300</span>)</span>
 <span id="cb17-26"><a aria-hidden="true" href="#cb17-26" tabindex="-1"></a>f.draw()</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="27">
+<div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 <figure class="figure">
 <p><img class="img-fluid figure-img" src="HVS-SASS_files/figure-html/cell-17-output-1.png"/></p>
@@ -961,7 +991,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>If we go ahead and test whether the richness of species is different between the two head types, we can do a non-parametric paired test (Wilcoxon signed-rank test) to compare the richness of species between the two head types:</p>
-<div class="cell" data-execution_count="29" id="cell-42">
+<div class="cell" data-execution_count="20" id="cell-42">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a aria-hidden="true" href="#cb18-1" tabindex="-1"></a>pm_richness <span class="op">=</span> (species_long</span>
@@ -986,10 +1016,9 @@ Name: count, dtype: int64</code></pre>
 <span id="cb18-20"><a aria-hidden="true" href="#cb18-20" tabindex="-1"></a></span>
 <span id="cb18-21"><a aria-hidden="true" href="#cb18-21" tabindex="-1"></a>pm_richness</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
-<div>
-<table class="dataframe table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th">header</th>
@@ -1028,11 +1057,10 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-</div>
 <p>The results of the test show a non-significant difference in the richness of species between the two head types (p-value = 0.75).</p>
-<div class="cell" data-execution_count="71" id="cell-44">
+<div class="cell" data-execution_count="21" id="cell-44">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a aria-hidden="true" href="#cb19-1" tabindex="-1"></a>stats.wilcoxon(pm_richness[<span class="st">'diff'</span>])</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="71">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>WilcoxonResult(statistic=2.0, pvalue=0.75)</code></pre>
 </div>
 </div>
@@ -1040,15 +1068,15 @@ Name: count, dtype: int64</code></pre>
 <section class="level3" id="supp.-experiment-bags-vs-vial-blanks">
 <h3 class="anchored" data-anchor-id="supp.-experiment-bags-vs-vial-blanks">Supp. Experiment: Bags vs Vial blanks</h3>
 <p>We are going to compare the richness of the blanks using vials and bags to see if there is a significant difference between the two types of blanks:</p>
-<div class="cell" data-execution_count="30" id="cell-47">
+<div class="cell" data-execution_count="22" id="cell-47">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a aria-hidden="true" href="#cb21-1" tabindex="-1"></a>bag_vial_blanks <span class="op">=</span> [<span class="st">'B6-B'</span>, <span class="st">'B6-V'</span>, <span class="st">'B3-B'</span>, <span class="st">'BPM-B'</span>, <span class="st">'B3-V'</span>, <span class="st">'BPM-V'</span>, <span class="st">'BQZ-B'</span>, <span class="st">'BQZ-V'</span>]</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="41" id="cell-48">
+<div class="cell" data-execution_count="23" id="cell-48">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a aria-hidden="true" href="#cb22-1" tabindex="-1"></a>blanks_table <span class="op">=</span> pd.read_csv(<span class="st">'../data/ABS_hvs_blank2-sp.csv'</span>)</span>
 <span id="cb22-2"><a aria-hidden="true" href="#cb22-2" tabindex="-1"></a>blanks_table.columns <span class="op">=</span> [col.split(<span class="st">'.'</span>)[<span class="dv">0</span>] <span class="cf">for</span> col <span class="kw">in</span> blanks_table.columns]</span>
 <span id="cb22-3"><a aria-hidden="true" href="#cb22-3" tabindex="-1"></a>blanks_table.rename(columns<span class="op">=</span>{<span class="st">'#Datasets'</span>: <span class="st">'name'</span>}, inplace<span class="op">=</span><span class="va">True</span>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="75" id="cell-49">
+<div class="cell" data-execution_count="24" id="cell-49">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a aria-hidden="true" href="#cb23-1" tabindex="-1"></a>blanks_richness <span class="op">=</span>(blanks_table</span>
@@ -1087,14 +1115,73 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>There is no significant difference when testing with a Wilcoxon signed-rank test (p-value = 0.375):</p>
-<div class="cell" data-execution_count="78" id="cell-51">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a aria-hidden="true" href="#cb24-1" tabindex="-1"></a>(blanks_richness</span>
-<span id="cb24-2"><a aria-hidden="true" href="#cb24-2" tabindex="-1"></a> .pivot(index<span class="op">=</span><span class="st">'sample_name'</span>, columns<span class="op">=</span><span class="st">'kind'</span>, values<span class="op">=</span><span class="st">'name'</span>)</span>
-<span id="cb24-3"><a aria-hidden="true" href="#cb24-3" tabindex="-1"></a> .assign(diff<span class="op">=</span><span class="kw">lambda</span> dd: dd[<span class="st">'Bag'</span>] <span class="op">-</span> dd[<span class="st">'Vial'</span>])</span>
-<span id="cb24-4"><a aria-hidden="true" href="#cb24-4" tabindex="-1"></a> .pipe(<span class="kw">lambda</span> dd: stats.wilcoxon(dd[<span class="st">'diff'</span>]))</span>
-<span id="cb24-5"><a aria-hidden="true" href="#cb24-5" tabindex="-1"></a> )</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="78">
-<pre><code>WilcoxonResult(statistic=2.0, pvalue=0.375)</code></pre>
+</section>
+<section class="level3" id="shannon-and-simpson-diversity-indexes">
+<h3 class="anchored" data-anchor-id="shannon-and-simpson-diversity-indexes">Shannon and Simpson diversity indexes</h3>
+<p>We are now going to compute the Shannon and Simpson diversity indexes for the blanks.</p>
+<p>The Shannon diversity index H is given by the formula:</p>
+<p><span class="math display">\[H = -\sum_{i=1}^{R} p_i \ln(p_i)\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(R\)</span> is the total number of species,</li>
+<li><span class="math inline">\(p_i\)</span> is the proportion of individuals belonging to the <span class="math inline">\(i\)</span>-th species, calculated as <span class="math inline">\(p_i = \frac{n_i}{N}\)</span> ,</li>
+<li><span class="math inline">\(n_i\)</span> is the number of individuals in the i -th species,</li>
+<li><span class="math inline">\(N\)</span> is the total number of individuals across all species.</li>
+</ul>
+<p>The Simpson diversity index D can then be defined as:</p>
+<p><span class="math display">\[D = 1 - \sum_{i=1}^{R} p_i^2  = 1 - \frac{\sum_{i=1}^{R} n_i (n_i - 1)}{N (N - 1)} \]</span></p>
+<p>We’ll define a function to calculate each of these indexes in numpy and then simply apply it to the columns of the dataframe with the species counts to get the diversity indexes for each sample:</p>
+<div class="cell" data-execution_count="74" id="cell-53">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a aria-hidden="true" href="#cb24-1" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List</span>
+<span id="cb24-2"><a aria-hidden="true" href="#cb24-2" tabindex="-1"></a></span>
+<span id="cb24-3"><a aria-hidden="true" href="#cb24-3" tabindex="-1"></a><span class="kw">def</span> shannon_diversity(species_counts: List[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb24-4"><a aria-hidden="true" href="#cb24-4" tabindex="-1"></a>    species_counts <span class="op">=</span> np.array(species_counts)</span>
+<span id="cb24-5"><a aria-hidden="true" href="#cb24-5" tabindex="-1"></a>    species_counts <span class="op">=</span> species_counts[species_counts <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb24-6"><a aria-hidden="true" href="#cb24-6" tabindex="-1"></a>    total_counts <span class="op">=</span> np.<span class="bu">sum</span>(species_counts)</span>
+<span id="cb24-7"><a aria-hidden="true" href="#cb24-7" tabindex="-1"></a>    proportions <span class="op">=</span> species_counts <span class="op">/</span> total_counts</span>
+<span id="cb24-8"><a aria-hidden="true" href="#cb24-8" tabindex="-1"></a>    shannon_index <span class="op">=</span> <span class="op">-</span>np.<span class="bu">sum</span>(proportions <span class="op">*</span> np.log(proportions))</span>
+<span id="cb24-9"><a aria-hidden="true" href="#cb24-9" tabindex="-1"></a>    <span class="cf">return</span> shannon_index</span>
+<span id="cb24-10"><a aria-hidden="true" href="#cb24-10" tabindex="-1"></a></span>
+<span id="cb24-11"><a aria-hidden="true" href="#cb24-11" tabindex="-1"></a><span class="kw">def</span> simpson_diversity(species_counts: List[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb24-12"><a aria-hidden="true" href="#cb24-12" tabindex="-1"></a>    species_counts <span class="op">=</span> np.array(species_counts)</span>
+<span id="cb24-13"><a aria-hidden="true" href="#cb24-13" tabindex="-1"></a>    total_counts <span class="op">=</span> np.<span class="bu">sum</span>(species_counts)</span>
+<span id="cb24-14"><a aria-hidden="true" href="#cb24-14" tabindex="-1"></a>    proportions <span class="op">=</span> species_counts <span class="op">/</span> total_counts</span>
+<span id="cb24-15"><a aria-hidden="true" href="#cb24-15" tabindex="-1"></a>    simpson_index <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.<span class="bu">sum</span>(proportions <span class="op">**</span> <span class="dv">2</span>)</span>
+<span id="cb24-16"><a aria-hidden="true" href="#cb24-16" tabindex="-1"></a>    <span class="cf">return</span> simpson_index</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="101" id="cell-54">
+<details class="code-fold">
+<summary>Show Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a aria-hidden="true" href="#cb25-1" tabindex="-1"></a>blank_sample_names <span class="op">=</span> metadata_df.loc[metadata_df[<span class="st">'Sample ID'</span>].<span class="bu">str</span>.startswith(<span class="st">'B'</span>)][<span class="st">'Sample ID'</span>]</span>
+<span id="cb25-2"><a aria-hidden="true" href="#cb25-2" tabindex="-1"></a></span>
+<span id="cb25-3"><a aria-hidden="true" href="#cb25-3" tabindex="-1"></a>(blanks_table</span>
+<span id="cb25-4"><a aria-hidden="true" href="#cb25-4" tabindex="-1"></a> .melt(<span class="st">'name'</span>, var_name<span class="op">=</span><span class="st">'sample_id'</span>, value_name<span class="op">=</span><span class="st">'counts'</span>)</span>
+<span id="cb25-5"><a aria-hidden="true" href="#cb25-5" tabindex="-1"></a> .merge(metadata_df[[<span class="st">'Sample ID'</span>, <span class="st">'sample_id'</span>]])</span>
+<span id="cb25-6"><a aria-hidden="true" href="#cb25-6" tabindex="-1"></a> .query(<span class="st">'`Sample ID` in @blank_sample_names'</span>)</span>
+<span id="cb25-7"><a aria-hidden="true" href="#cb25-7" tabindex="-1"></a> .pivot(index<span class="op">=</span><span class="st">'name'</span>, columns<span class="op">=</span><span class="st">'Sample ID'</span>, values<span class="op">=</span><span class="st">'counts'</span>)</span>
+<span id="cb25-8"><a aria-hidden="true" href="#cb25-8" tabindex="-1"></a> .fillna(<span class="dv">0</span>)</span>
+<span id="cb25-9"><a aria-hidden="true" href="#cb25-9" tabindex="-1"></a> .pipe(<span class="kw">lambda</span> dd: pd.concat([</span>
+<span id="cb25-10"><a aria-hidden="true" href="#cb25-10" tabindex="-1"></a>        dd.<span class="bu">apply</span>(shannon_diversity, axis<span class="op">=</span><span class="dv">0</span>).rename(<span class="st">'Shannon Index'</span>).reset_index()</span>
+<span id="cb25-11"><a aria-hidden="true" href="#cb25-11" tabindex="-1"></a>        .merge(dd.<span class="bu">apply</span>(simpson_diversity, axis<span class="op">=</span><span class="dv">0</span>).rename(<span class="st">'Simpson Index'</span>).reset_index())</span>
+<span id="cb25-12"><a aria-hidden="true" href="#cb25-12" tabindex="-1"></a>    ])</span>
+<span id="cb25-13"><a aria-hidden="true" href="#cb25-13" tabindex="-1"></a> )</span>
+<span id="cb25-14"><a aria-hidden="true" href="#cb25-14" tabindex="-1"></a> .melt(<span class="st">'Sample ID'</span>, var_name<span class="op">=</span><span class="st">'index'</span>, value_name<span class="op">=</span><span class="st">'value'</span>)</span>
+<span id="cb25-15"><a aria-hidden="true" href="#cb25-15" tabindex="-1"></a> .pipe(<span class="kw">lambda</span> dd: p9.ggplot(dd)</span>
+<span id="cb25-16"><a aria-hidden="true" href="#cb25-16" tabindex="-1"></a>       </span>
+<span id="cb25-17"><a aria-hidden="true" href="#cb25-17" tabindex="-1"></a>       <span class="op">+</span> p9.aes(<span class="st">'Sample ID'</span>, <span class="st">'value'</span>)</span>
+<span id="cb25-18"><a aria-hidden="true" href="#cb25-18" tabindex="-1"></a>       <span class="op">+</span> p9.geom_col()</span>
+<span id="cb25-19"><a aria-hidden="true" href="#cb25-19" tabindex="-1"></a>       <span class="op">+</span> p9.facet_wrap(<span class="st">'~index'</span>, scales<span class="op">=</span><span class="st">'free_y'</span>, ncol<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb25-20"><a aria-hidden="true" href="#cb25-20" tabindex="-1"></a>       <span class="op">+</span> p9.labs(x<span class="op">=</span><span class="st">''</span>, y<span class="op">=</span><span class="st">''</span>)</span>
+<span id="cb25-21"><a aria-hidden="true" href="#cb25-21" tabindex="-1"></a>       <span class="op">+</span> p9.theme(figure_size<span class="op">=</span>(<span class="dv">4</span>, <span class="dv">3</span>), axis_text_x<span class="op">=</span>p9.element_text(angle<span class="op">=</span><span class="dv">45</span>))</span>
+<span id="cb25-22"><a aria-hidden="true" href="#cb25-22" tabindex="-1"></a> )</span>
+<span id="cb25-23"><a aria-hidden="true" href="#cb25-23" tabindex="-1"></a>)</span></code><button class="code-copy-button" title="Copy to Clipboard"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img class="img-fluid figure-img" src="HVS-SASS_files/figure-html/cell-24-output-1.png"/></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
